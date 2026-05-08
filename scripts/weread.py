@@ -59,15 +59,15 @@ def get_bookmark_list(bookId):
     params = dict(bookId=bookId)
     r = session.get(WEREAD_BOOKMARKLIST_URL, params=params)
     if r.ok:
-    updated = r.json().get("updated")
-    if not updated:
-        return []
-    updated = sorted(
-        updated,
-        key=lambda x: (x.get("chapterUid", 1), int(x.get("range").split("-")[0])),
-    )
-    return updated
-return []
+        updated = r.json().get("updated")
+        if not updated:
+            return []
+        updated = sorted(
+            updated,
+            key=lambda x: (x.get("chapterUid", 1), int(x.get("range").split("-")[0])),
+        )
+        return updated
+    return []
 
 @retry(stop_max_attempt_number=3, wait_fixed=5000,retry_on_exception=refresh_token)
 def get_read_info(bookId):
