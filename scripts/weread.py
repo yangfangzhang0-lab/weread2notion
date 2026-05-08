@@ -155,7 +155,7 @@ def insert_to_notion(bookName, bookId, cover, sort, author, isbn, rating, catego
         readingProgress = read_info.get("readingProgress", 0)
         hour = readingTime // 3600
         minutes = readingTime % 3600 // 60
-        properties["阅读状态"] = {"status": {"name": "已读" if markedStatus == 4 else "在读"}}
+        properties["阅读状态"] = get_select("已读" if markedStatus == 4 else "在读")
         properties["阅读时长"] = get_number(readingTime)
         properties["阅读进度"] = get_number(readingProgress / 100)
         if "finishedDate" in read_info:
@@ -397,6 +397,8 @@ if __name__ == "__main__":
             chapter = get_chapter_info(bookId)
             bookmark_list = get_bookmark_list(bookId)
             summary, reviews = get_review_list(bookId)
+            if bookmark_list is None:
+                bookmark_list = []
             bookmark_list.extend(reviews)
             bookmark_list = sorted(
                 bookmark_list,
