@@ -50,7 +50,6 @@ def parse_cookie_string(cookie_string):
 
 def refresh_token(exception):
     session.get(WEREAD_URL)
-    return True
 
 @retry(stop_max_attempt_number=3, wait_fixed=5000,retry_on_exception=refresh_token)
 def get_bookmark_list(bookId):
@@ -60,14 +59,12 @@ def get_bookmark_list(bookId):
     r = session.get(WEREAD_BOOKMARKLIST_URL, params=params)
     if r.ok:
         updated = r.json().get("updated")
-        if not updated:
-            return []
         updated = sorted(
             updated,
             key=lambda x: (x.get("chapterUid", 1), int(x.get("range").split("-")[0])),
         )
-        return updated
-    return []
+        return r.json()["updated"]
+    return None
 
 @retry(stop_max_attempt_number=3, wait_fixed=5000,retry_on_exception=refresh_token)
 def get_read_info(bookId):
@@ -101,6 +98,8 @@ def get_review_list(bookId):
     params = dict(bookId=bookId, listType=11, mine=1, syncKey=0)
     r = session.get(WEREAD_REVIEW_LIST_URL, params=params)
     reviews = r.json().get("reviews")
+    if not reviews:
+        return [], []
     summary = list(filter(lambda x: x.get("review").get("type") == 4, reviews))
     reviews = list(filter(lambda x: x.get("review").get("type") == 1, reviews))
     reviews = list(map(lambda x: x.get("review"), reviews))
